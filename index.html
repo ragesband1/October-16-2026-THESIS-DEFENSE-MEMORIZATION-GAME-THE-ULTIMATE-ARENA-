@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THESIS DEFENSE MEMORIZATION GAME: THE ULTIMATE ARENA</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --accent-green: #238636;
+            --accent-yellow: #d29922;
+            --accent-red: #da3633;
+            --text-color: #c9d1d9;
+            --highlight-color: #f0883e;
+            --font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            background-color: var(--panel-bg);
+            border: 2px solid var(--accent-yellow);
+            border-radius: 10px;
+            width: 100%;
+            max-width: 900px;
+            padding: 30px;
+            box-shadow: 0 0 25px rgba(210, 153, 34, 0.4);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: var(--accent-yellow);
+            text-align: center;
+            text-shadow: 2px 2px var(--accent-red);
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #21262d;
+            padding: 12px 20px;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .timer-box {
+            color: var(--accent-yellow);
+        }
+
+        .score-box {
+            color: var(--accent-green);
+        }
+
+        .penalty-box {
+            color: var(--accent-red);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        button {
+            background-color: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-family: var(--font-family);
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: 0.2s;
+            box-shadow: 0 4px 0 #11581e;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #11581e;
+        }
+
+        .review-card {
+            background: #090d12;
+            border-left: 5px solid var(--accent-yellow);
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .qa-item {
+            margin-bottom: 12px;
+            border-bottom: 1px dashed #30363d;
+            padding-bottom: 8px;
+        }
+
+        .q-text {
+            color: var(--accent-yellow);
+            font-weight: bold;
+        }
+
+        .a-text {
+            color: #7ee787;
+        }
+
+        .highlight {
+            background-color: rgba(210, 153, 34, 0.3);
+            color: var(--accent-yellow);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background: #0d1117;
+            border: 2px solid #30363d;
+            color: white;
+            font-size: 16px;
+            font-family: var(--font-family);
+            border-radius: 6px;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-yellow);
+            outline: none;
+        }
+
+        .audio-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 10px var(--accent-green); }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        .audio-status {
+            font-size: 11px;
+            color: #8b949e;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>THESIS DEFENSE MEMORIZATION GAME</h1>
+    <div class="subtitle">>>> MAANGAS NA ARENA PARA SA AKTWAL NA DEFENSE <<<</div>
+
+    <!-- START SCREEN -->
+    <div id="start-screen" class="screen active">
+        <div class="audio-status"><span class="audio-indicator"></span> Audio Speaker Engine: READY (Make sure sound is on!)</div>
+        <p>Welcome sa iyong personal thesis defense arena! Ang larong ito ay may dalawang yugto:</p>
+        <ul>
+            <li><strong>Phase 1: 30-Minute Review Timer</strong> - Basahin at kabisaduhin ang 35 Kumpletong Q&A kasama ang mga <span class="highlight">yellow highlighted keywords</span>.</li>
+            <li><strong>Phase 2: 1-Hour Defense Simulation</strong> - Scrambled/Randomized questions mula sa panel. Walang skip, puro space at letters ang pag-type mo ng eksaktong sagot!</li>
+        </ul>
+        <p><strong>Rules:</strong> Tama = + Points | Mali = - Points (Penalty para sa lesson na need pa pag-sikapan).</p>
+        <button onclick="startReviewPhase()">SIMULAN ANG 30-MINUTONG REVIEW</button>
+    </div>
+
+    <!-- REVIEW SCREEN (30 MINS) -->
+    <div id="review-screen" class="screen">
+        <div class="status-bar">
+            <div class="timer-box">REVIEW TIMER: <span id="review-timer">30:00</span></div>
+            <div class="score-box">PHASE: REVIEW MODE</div>
+        </div>
+        <div class="audio-status"><span class="audio-indicator"></span> Speaker active: Basahin nang mabuti ang mga nakasulat at kabisaduhin ang mga naka-highlight!</div>
+        <div class="review-card" id="review-list">
+            <!-- Dynamic Review Items will load here -->
+        </div>
+        <button onclick="startDefensePhase()">MATAPOS NA ANG REVIEW / START DEFENSE SIMULATION</button>
+    </div>
+
+    <!-- DEFENSE SIMULATION SCREEN (1 HOUR) -->
+    <div id="defense-screen" class="screen">
+        <div class="status-bar">
+            <div class="timer-box">DEFENSE TIMER: <span id="defense-timer">1:00:00</span></div>
+            <div class="score-box">SCORE: <span id="score-display">0</span></div>
+            <div class="penalty-box">PENALTY: <span id="penalty-display">0</span></div>
+        </div>
+        <div class="audio-status"><span class="audio-indicator"></span> Panelist Audio Speaker: Nagsasalita ang tanong... Pindot ng letters at space.</div>
+        
+        <div style="margin-top: 20px;">
+            <div id="question-progress" style="font-size: 12px; color: var(--accent-yellow); margin-bottom: 5px;">Question 1 of 35</div>
+            <div id="panel-question" style="font-size: 18px; font-weight: bold; color: white; margin-bottom: 15px;">Tanong dito...</div>
+            <input type="text" id="user-answer-input" placeholder="I-type ang eksaktong sagot dito gamit ang spaces at letters..." onkeypress="handleTyping(event)">
+            <button onclick="submitAnswer()">IPASA ANG SAGOT (ENTER / CLICK)</button>
+        </div>
+        <div id="feedback-msg" style="margin-top: 15px; font-weight: bold; text-align: center;"></div>
+    </div>
+
+    <!-- GAME OVER / RESULTS SCREEN -->
+    <div id="result-screen" class="screen">
+        <h2 style="color: var(--accent-yellow); text-align: center;">DEFENSE SIMULATION TAPOS NA!</h2>
+        <div class="review-card" style="text-align: center; font-size: 18px;">
+            <p>Final Score: <span id="final-score" style="color: var(--accent-green); font-weight: bold;">0</span> / 35</p>
+            <p>Total Penalties / Mali: <span id="final-penalty" style="color: var(--accent-red); font-weight: bold;">0</span></p>
+            <p id="eval-message" style="margin-top: 20px; color: var(--text-color);"></p>
+        </div>
+        <button onclick="location.reload()">MAGLARO MULI / RESTART</button>
+    </div>
+</div>
+
+<script>
+    // Kumpletong 35 Q&A Database nang walang shortcut
+    const qaDatabase = [
+        { q: "What is AI?", a: "Technology that simulates human intelligence." },
+        { q: "What are the types of AI?", a: "Narrow AI General AI and Super AI." },
+        { q: "What are examples of AI tools?", a: "ChatGPT Gemini Firefly and Canva AI." },
+        { q: "What are the advantages and disadvantages of AI?", a: "Saves time but may cause dependence." },
+        { q: "Why did you choose this topic?", a: "To understand students AI use." },
+        { q: "How does AI affect students' creativity?", a: "It supports creativity but may cause dependence." },
+        { q: "How can students use AI responsibly?", a: "By checking outputs and maintaining originality." },
+        { q: "What if there is no AI?", a: "Students can use traditional methods." },
+        { q: "Can AI replace human creativity?", a: "No human creativity remains important." },
+        { q: "What is your main recommendation?", a: "Use AI responsibly and maintain creativity." },
+        { q: "What is the relevance of your research?", a: "To promote responsible AI use in design." },
+        { q: "What is the importance of your research?", a: "To encourage creativity and responsible AI use." },
+        { q: "What are the uses of AI?", a: "For learning creativity and productivity." },
+        { q: "Can you live in this world without AI?", a: "Yes through traditional methods." },
+        { q: "If you use AI with critical thinking, can you improve originality?", a: "Yes by using personal creativity." },
+        { q: "Without AI, can students study very well?", a: "Yes through traditional learning." },
+        { q: "Without AI, will students' studies be affected?", a: "Yes some tasks take longer." },
+        { q: "Who is smarter, AI or students?", a: "Students through critical thinking." },
+        { q: "What is the Introduction?", a: "AI helps students in illustration and design." },
+        { q: "What is the Background?", a: "AI helps students create ideas and designs." },
+        { q: "What is the Rationale?", a: "The study promotes responsible AI use." },
+        { q: "What are the Objectives?", a: "To identify factors relationships benefits and disadvantages of AI use." },
+        { q: "What is the Problem?", a: "The study examines AIs effects on students creativity and design process." },
+        { q: "What are the Significance of the Study?", a: "Students Understand AIs benefits and challenges Teachers Understand students AI use Schools Develop responsible AI guidelines Future Researchers Support future AI research Researchers Understand AIs effects on creativity." },
+        { q: "What are the Key Findings of literature?", a: "ChatGPT use is influenced by usefulness ease trust access and AI literacy." },
+        { q: "What is the Research Design?", a: "The study uses surveys correlation and regression." },
+        { q: "What is the Theoretical Framework?", a: "TAM focuses on perceived usefulness and perceived ease of use." },
+        { q: "What is the Conceptual Framework?", a: "It shows how nine factors influence intention to use AI." },
+        { q: "What is the Hypothesis?", a: "The study examines the relationship between nine factors and AI use intention." },
+        { q: "What are the Nine Variables?", a: "Perceived Usefulness and Productivity Measures productivity Creativity and Idea Generation Measures idea generation Learning Skills and Confidence Measures learning and skills Concerns and Risks Measures AI-related concerns Design Assistance and Quality Measures design support and output Social Influence Measures classmates influence Accessibility and Facilitating Conditions Measures access to AI and resources Traditional/Freehand Design Preference Measures preference for traditional design Ethical/Transparent Use Measures responsible AI use." },
+        { q: "What is Continued Use / Behavioral Intention?", a: "It measures the intention to continue using AI." },
+        { q: "For ChatGPT Adoption and Behavioral Intention, we have seven RRLs?", a: "Haq et al 2025 Usefulness and ease of use influence ChatGPT adoption Himang et al 2026 Performance expectancy influences behavioral intention Marinas et al 2025 Usefulness trust and social influence affect ChatGPT use Pham et al 2025 Usefulness and subjective norms influence intention Jazim et al 2025 Support trust and social influence affect intention Verma and Kumar 2026 Learning support and accessibility influence ChatGPT use Yang 2026 TAM helps explain ChatGPT adoption." },
+        { q: "For Students’ Experiences and Perceptions, we have four RRLs?", a: "Ammari et al 2025 Students actively interact with ChatGPT Monib et al 2025 Students find ChatGPT useful for learning Shuhaiber et al 2025 The study examines students ChatGPT experiences Hu 2026 AI literacy supports continued ChatGPT use." },
+        { q: "For ChatGPT in Art, Design, and Visual Communication Design, we have four RRLs?", a: "Enggrayni et al 2026 Social influence ease risks and anxiety affect adoption Kim et al 2025 ChatGPT helps generate design ideas Zhuo et al 2025 Quality and usefulness affect satisfaction Chen et al 2025 ChatGPT can improve learning outcomes." },
+        { q: "For the Asian and Philippine Context, we have five RRLs?", a: "Irwanto 2025 ChatGPT research is growing in Asian education Kazykhankyzy et al 2026 Several factors influence ChatGPT adoption Tinsay 2025 ChatGPT use is relatively high in the Philippines ASEAN Foundation 2026 Generative AI is widely used by Filipino students Radar PH 2025 AI adoption is increasing in the Philippines." }
+    ];
+
+    let reviewTimerInterval;
+    let defenseTimerInterval;
+    let reviewTimeLeft = 30 * 60; // 30 minutes
+    let defenseTimeLeft = 60 * 60; // 1 hour
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let penalty = 0;
+    let shuffledQuestions = [];
+
+    // Text-to-Speech Helper Function
+    function speakText(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // Stop previous speech
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    function startReviewPhase() {
+        document.getElementById('start-screen').classList.remove('active');
+        document.getElementById('review-screen').classList.add('active');
+        
+        // Populate review list with highlights
+        let container = document.getElementById('review-list');
+        container.innerHTML = "";
+        qaDatabase.forEach((item, index) => {
+            container.innerHTML += `
+                <div class="qa-item">
+                    <div class="q-text">${index + 1}. ${item.q}</div>
+                    <div class="a-text"><span class="highlight">${item.a}</span></div>
+                </div>
+            `;
+        });
+
+        speakText("Review phase started. You have thirty minutes to memorize the highlighted keywords and answers.");
+        
+        reviewTimerInterval = setInterval(() => {
+            let minutes = Math.floor(reviewTimeLeft / 60);
+            let seconds = reviewTimeLeft % 60;
+            document.getElementById('review-timer').innerText = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (reviewTimeLeft <= 0) {
+                clearInterval(reviewTimerInterval);
+                startDefensePhase();
+            }
+            reviewTimeLeft--;
+        }, 1000);
+    }
+
+    function startDefensePhase() {
+        clearInterval(reviewTimerInterval);
+        document.getElementById('review-screen').classList.remove('active');
+        document.getElementById('defense-screen').classList.add('active');
+
+        // Shuffle questions for panel scramble effect
+        shuffledQuestions = [...qaDatabase].sort(() => Math.random() - 0.5);
+        currentQuestionIndex = 0;
+        score = 0;
+        penalty = 0;
+
+        speakText("Defense simulation started. Panelists are ready. Here is your first question.");
+        loadNextQuestion();
+
+        defenseTimerInterval = setInterval(() => {
+            let minutes = Math.floor(defenseTimeLeft / 60);
+            let seconds = defenseTimeLeft % 60;
+            document.getElementById('defense-timer').innerText = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (defenseTimeLeft <= 0) {
+                clearInterval(defenseTimerInterval);
+                endGame();
+            }
+            defenseTimeLeft--;
+        }, 1000);
+    }
+
+    function loadNextQuestion() {
+        if (currentQuestionIndex >= shuffledQuestions.length) {
+            endGame();
+            return;
+        }
+
+        let currentQ = shuffledQuestions[currentQuestionIndex];
+        document.getElementById('question-progress').innerText = `Question ${currentQuestionIndex + 1} of ${shuffledQuestions.length}`;
+        document.getElementById('panel-question').innerText = currentQ.q;
+        document.getElementById('user-answer-input').value = "";
+        document.getElementById('feedback-msg').innerText = "";
+        
+        speakText(currentQ.q);
+        document.getElementById('user-answer-input').focus();
+    }
+
+    function handleTyping(event) {
+        if (event.key === 'Enter') {
+            submitAnswer();
+        }
+    }
+
+    function submitAnswer() {
+        let userAns = document.getElementById('user-answer-input').value.trim().toLowerCase();
+        let correctAns = shuffledQuestions[currentQuestionIndex].a.trim().toLowerCase();
+
+        // Simple substring/exact keyword matching logic for strict defense check
+        if (userAns === correctAns || (userAns.length > 3 && correctAns.includes(userAns))) {
+            score++;
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('feedback-msg').style.color = "var(--accent-green)";
+            document.getElementById('feedback-msg').innerText = "TAMA! Magaling ang sagot mo.";
+            speakText("Correct!");
+        } else {
+            penalty++;
+            document.getElementById('penalty-display').innerText = penalty;
+            document.getElementById('feedback-msg').style.color = "var(--accent-red)";
+            document.getElementById('feedback-msg').innerText = `MALI! Ang tamang sagot ay: "${shuffledQuestions[currentQuestionIndex].a}"`;
+            speakText("Incorrect. Review your lesson.");
+        }
+
+        currentQuestionIndex++;
+        setTimeout(() => {
+            loadNextQuestion();
+        }, 2000);
+    }
+
+    function endGame() {
+        clearInterval(defenseTimerInterval);
+        window.speechSynthesis.cancel();
+        document.getElementById('defense-screen').classList.remove('active');
+        document.getElementById('result-screen').classList.add('active');
+
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('final-penalty').innerText = penalty;
+
+        let evalMsg = "";
+        if (penalty === 0) {
+            evalMsg = "Lupet mo! Perfect ang memory mo, handa ka na sa aktwal defense!";
+        } else if (penalty < 5) {
+            evalMsg = "Kontinghasa na lang at solid ka na para sa mga panelista!";
+        } else {
+            evalMsg = "Kailangan mo pang balikan ang mga mali mong sagot para sa aktwal na defense!";
+        }
+        document.getElementById('eval-message').innerText = evalMsg;
+        speakText("Defense simulation completed. Check your results.");
+    }
+</script>
+
+</body>
+</html>
